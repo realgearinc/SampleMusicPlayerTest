@@ -196,9 +196,6 @@ public class CustomBottomSheetBehavior <V extends View> extends CoordinatorLayou
 
     boolean mTouchingScrollingChild;
 
-
-    private int mMediaPlayerBarHeight;
-
     /**
      * Default constructor for instantiating AnchorBottomSheetBehaviors.
      */
@@ -237,10 +234,6 @@ public class CustomBottomSheetBehavior <V extends View> extends CoordinatorLayou
         ViewConfiguration configuration = ViewConfiguration.get(context);
         mMaximumVelocity = configuration.getScaledMaximumFlingVelocity();
         mMinimumVelocity = configuration.getScaledMinimumFlingVelocity();
-    }
-
-    public void setMediaPlayerBarHeight(int mediaPlayerBarHeight) {
-        this.mMediaPlayerBarHeight = mediaPlayerBarHeight;
     }
 
     void invalidateScrollingChild() {
@@ -860,24 +853,51 @@ public class CustomBottomSheetBehavior <V extends View> extends CoordinatorLayou
         return null;
     }
 
-    void startSettlingAnimation(View child, int state) {
+    public int getTopByState(int state) {
         int top;
-        if (state == STATE_COLLAPSED) {
-            top = mMaxOffset;
-        } else if (state == STATE_EXPANDED) {
-            top = mMinOffset;
-        } else if (state == STATE_ANCHORED) {
-            if (mAnchorOffset > mMinOffset) {
-                top = mAnchorOffset;
-            } else {
-                state = STATE_EXPANDED;
+        switch (state) {
+            case STATE_COLLAPSED:
+                top = mMaxOffset;
+                break;
+            case STATE_ANCHORED:
+                top = (mAnchorOffset > mMinOffset) ? mAnchorOffset : mMinOffset;
+                state = (mAnchorOffset > mMinOffset) ? state : STATE_EXPANDED;
+                break;
+            case STATE_EXPANDED:
                 top = mMinOffset;
-            }
-        } else if (mHideable && state == STATE_HIDDEN) {
-            top = mParentHeight;
-        } else {
-            throw new IllegalArgumentException("Illegal state argument: " + state);
+                break;
+
+            default:
+                if (mHideable && state == STATE_HIDDEN) {
+                    top = mParentHeight;
+                }
+                else {
+                    throw new IllegalArgumentException("Illegal state argument: " + state);
+                }
+                break;
         }
+
+        return top;
+    }
+
+    public float getSlideOffsetByTop(int top) {
+        float slideOffset = -1F;
+        View bottomSheet = mViewRef.get();
+        if (bottomSheet != null) {
+            if (top > mMaxOffset) {
+                slideOffset = (float) (mMaxOffset - top) / (mParentHeight - mMaxOffset);
+            }
+            else {
+                slideOffset = (float) (mMaxOffset - top) / (mMaxOffset - mMinOffset);
+            }
+        }
+
+        return slideOffset;
+    }
+
+    void startSettlingAnimation(View child, int state) {
+        int top = getTopByState(state);
+        
         setStateInternal(STATE_SETTLING);
         if (mViewDragHelper.smoothSlideViewTo(child, child.getLeft(), top)) {
             ViewCompat.postOnAnimation(child, new SettleRunnable(child, state));
@@ -935,20 +955,13 @@ public class CustomBottomSheetBehavior <V extends View> extends CoordinatorLayou
         @Override
         public int clampViewPositionVertical(View child, int top, int dy) {
             if(mPrevState == STATE_COLLAPSED) {
-                //Log.i(TAG, "Prev State is Collapsed, Top = " + (mParentHeight - (getAnchorOffset()+getPeekHeight())));
-                int maxTop = getAnchorOffset() - 64;
+                int maxTop = getAnchorOffset() - getPeekHeight();
 
                 return Math.max(top, maxTop);
             }
             if(mPrevState == STATE_EXPANDED) {
-                //Log.i(TAG, "Prev State is Collapsed, Top = " + (mParentHeight - (getAnchorOffset()+getPeekHeight())));
+                int maxTop = getAnchorOffset() + getPeekHeight();
 
-                Log.i(TAG, "Dy : " + dy);
-                Log.i(TAG, "Top : " + top);
-                Log.i(TAG, "Min Offset : " + mMinOffset);
-
-                int maxTop = getAnchorOffset() + 64;
-                Log.i(TAG, "Max offset : " + maxTop);
                 return Math.min(Math.max(top, mMinOffset), maxTop);
             }
             else {
@@ -978,12 +991,7 @@ public class CustomBottomSheetBehavior <V extends View> extends CoordinatorLayou
     void dispatchOnSlide(int top) {
         View bottomSheet = mViewRef.get();
         if (bottomSheet != null) {
-            float slideOffset;
-            if (top > mMaxOffset) {
-                slideOffset = (float) (mMaxOffset - top) / (mParentHeight - mMaxOffset);
-            } else {
-                slideOffset = (float) (mMaxOffset - top) / (mMaxOffset - mMinOffset);
-            }
+            float slideOffset = getSlideOffsetByTop(top);
 
             for (int i = 0; i < mCallbacks.size(); i++) {
                 mCallbacks.get(i).onSlide(bottomSheet, slideOffset);

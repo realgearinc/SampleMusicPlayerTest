@@ -77,6 +77,7 @@ public class MediaPlayerBarView {
 
     public void onUpdateMetadata(MediaMetadata mediaMetadata) {
         this.mTextView_SongTitle.setText(mediaMetadata.getText(MediaMetadata.METADATA_KEY_TITLE));
+        this.mTextView_SongArtist.setText(mediaMetadata.getText(MediaMetadata.METADATA_KEY_ARTIST));
         this.mProgressIndicator.setMax((int)mediaMetadata.getLong(MediaMetadata.METADATA_KEY_DURATION));
 
         Bitmap album_art = mediaMetadata.getBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART);
@@ -135,7 +136,21 @@ public class MediaPlayerBarView {
     }
 
     public void onUpdateVibrantColor(int vibrantColor) {
-        this.mBackgroundView.setBackgroundColor(vibrantColor);
-        this.mImageBtn_PlayPause.setBackgroundColor(vibrantColor);
+
+        //this.mImageBtn_PlayPause.setBackgroundColor(vibrantColor);
     }
+
+    public void onUpdateVibrantDarkColor(int vibrantDarkColor) {
+        this.mBackgroundView.setBackgroundColor(vibrantDarkColor);
+    }
+
+    public void onUpdateMutedColor(int mutedColor) {
+
+    }
+
+    public void onUpdateMutedDarkColor(int mutedDarkColor) {
+        this.mProgressIndicator.setTrackColor(mutedDarkColor);
+    }
+
+
 }

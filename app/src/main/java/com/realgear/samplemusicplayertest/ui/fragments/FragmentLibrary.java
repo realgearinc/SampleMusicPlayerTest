@@ -45,8 +45,8 @@ public class FragmentLibrary extends Fragment {
 
         this.m_vLibraryRecyclerView = findViewById(R.id.library_recyclerView);
 
-        int panelheights = getResources().getDimensionPixelSize(R.dimen.navigation_bar_height) + getResources().getDimensionPixelSize(R.dimen.media_player_bar_height);
-        this.m_vLibraryRecyclerView.setPadding(0, 0, 0, panelheights);
+        int panelHeights = getResources().getDimensionPixelSize(R.dimen.navigation_bar_height) + getResources().getDimensionPixelSize(R.dimen.media_player_bar_height);
+        this.m_vLibraryRecyclerView.setPadding(0, 0, 0, panelHeights);
 
         List<Song> songs = LibraryManager.getSongs(getContext());
         List<BaseRecyclerViewItem> items = new ArrayList<>();

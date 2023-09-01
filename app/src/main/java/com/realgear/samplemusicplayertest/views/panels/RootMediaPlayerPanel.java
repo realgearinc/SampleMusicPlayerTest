@@ -70,7 +70,7 @@ public class RootMediaPlayerPanel extends BasePanelView implements PaletteStateL
 
         bottomSheetBehavior.setAnchorOffset((int)((dm.heightPixels - mPeakHeight) * anchor_offset));
         bottomSheetBehavior.setPeekHeight(getPeakHeight());
-        bottomSheetBehavior.setMediaPlayerBarHeight(getPeakHeight());
+        //bottomSheetBehavior.setMediaPlayerBarHeight(getPeakHeight());
         bottomSheetBehavior.setState(CustomBottomSheetBehavior.STATE_COLLAPSED);
 
         bottomSheetBehavior.addBottomSheetCallback(new CustomBottomSheetBehavior.BottomSheetCallback() {
@@ -97,7 +97,7 @@ public class RootMediaPlayerPanel extends BasePanelView implements PaletteStateL
 
             @Override
             public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-                float fadeStart = 0.20F;
+                float fadeStart = bottomSheetBehavior.getSlideOffsetByTop(bottomSheetBehavior.getTopByState(CustomBottomSheetBehavior.STATE_ANCHORED));
                 float alpha = Math.max(0, slideOffset - fadeStart) / (1F - fadeStart) ;
 
                 mMediaPlayerView.onSliding(slideOffset, MediaPlayerView.STATE_PARTIAL);
@@ -160,11 +160,21 @@ public class RootMediaPlayerPanel extends BasePanelView implements PaletteStateL
 
     @Override
     public void onUpdateVibrantDarkColor(int vibrantDarkColor) {
-
+        this.mMediaPlayerBarView.onUpdateVibrantDarkColor(vibrantDarkColor);
     }
 
     @Override
     public void onUpdateVibrantLightColor(int vibrantLightColor) {
 
+    }
+
+    @Override
+    public void onUpdateMutedColor(int mutedColor) {
+        this.mMediaPlayerBarView.onUpdateMutedColor(mutedColor);
+    }
+
+    @Override
+    public void onUpdateMutedDarkColor(int mutedDarkColor) {
+        this.mMediaPlayerBarView.onUpdateMutedDarkColor(mutedDarkColor);
     }
 }

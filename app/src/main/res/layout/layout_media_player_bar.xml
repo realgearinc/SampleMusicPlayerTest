@@ -114,7 +114,7 @@
                     android:layout_width="0dp"
                     android:layout_height="0dp"
                     android:layout_margin="4dp"
-                    app:cardBackgroundColor="#424242"
+                    app:cardBackgroundColor="#03000000"
                     app:cardCornerRadius="@dimen/media_player_bar_height"
                     app:cardElevation="0dp"
                     app:layout_constraintDimensionRatio="H,1:1"
